@@ -1,111 +1,102 @@
-import { Clock, User, Phone, ChefHat, Check, Play } from 'lucide-react';
+import { Clock, User, ChefHat, Check, ArrowRight } from 'lucide-react';
 import './OrderCard.css';
 
 function OrderCard({ order, onStatusChange }) {
-    const { orderId, customer, items, status, timestamp } = order;
+    const formatTime = (timestamp) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+    };
 
-    const getTimeAgo = () => {
+    const getTimeAgo = (timestamp) => {
         const now = new Date();
-        const orderTime = new Date(timestamp);
-        const diffMs = now - orderTime;
+        const created = new Date(timestamp);
+        const diffMs = now - created;
         const diffMins = Math.floor(diffMs / 60000);
 
         if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins} min ago`;
+        if (diffMins < 60) return `${diffMins}m ago`;
         const diffHours = Math.floor(diffMins / 60);
         return `${diffHours}h ${diffMins % 60}m ago`;
     };
 
-    const formatCurrency = (amount) => `₹${amount.toLocaleString('en-IN')}`;
+    const currentStatus = order.status === 'completed' ? 'pending' : order.status;
 
-    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    const getStatusInfo = () => {
-        switch (status) {
-            case 'pending':
-                return { label: 'New Order', class: 'pending', icon: '🔔' };
-            case 'preparing':
-                return { label: 'Preparing', class: 'preparing', icon: '👨‍🍳' };
-            case 'ready':
-                return { label: 'Ready', class: 'ready', icon: '✅' };
-            default:
-                return { label: status, class: '', icon: '📋' };
+    const getNextStatus = () => {
+        switch (currentStatus) {
+            case 'pending': return 'preparing';
+            case 'preparing': return 'ready';
+            case 'ready': return 'served';
+            default: return null;
         }
     };
 
-    const statusInfo = getStatusInfo();
+    const getActionLabel = () => {
+        switch (currentStatus) {
+            case 'pending': return 'Start Preparing';
+            case 'preparing': return 'Mark Ready';
+            case 'ready': return 'Mark Served';
+            default: return null;
+        }
+    };
+
+    const nextStatus = getNextStatus();
+    const actionLabel = getActionLabel();
 
     return (
-        <div className={`order-card ${status} ${status === 'pending' ? 'animate-glow' : ''}`}>
+        <div className={`order-card status-${currentStatus}`}>
             <div className="order-header">
-                <div className="order-id">
-                    <span className="order-number">#{orderId.slice(-6)}</span>
-                    <span className={`status-badge ${statusInfo.class}`}>
-                        {statusInfo.icon} {statusInfo.label}
-                    </span>
+                <div className="order-number">
+                    <span className="order-label">Order</span>
+                    <span className="order-id">#{order.orderId?.slice(-6) || order.id?.slice(-6)}</span>
                 </div>
                 <div className="order-time">
-                    <Clock size={18} />
-                    <span>{getTimeAgo()}</span>
+                    <Clock size={14} />
+                    <span>{getTimeAgo(order.createdAt)}</span>
                 </div>
             </div>
 
             <div className="order-customer">
-                <div className="customer-info">
-                    <User size={20} />
-                    <span>{customer.name}</span>
-                </div>
-                <div className="customer-info">
-                    <Phone size={20} />
-                    <span>{customer.phone}</span>
-                </div>
+                <User size={16} />
+                <span>{order.customer?.name || 'Customer'}</span>
             </div>
 
             <div className="order-items">
-                <h4>🍳 Items to Prepare</h4>
-                <ul>
-                    {items.map((item, index) => (
-                        <li key={index} className="order-item">
-                            <span className="item-quantity">{item.quantity}×</span>
+                <div className="items-header">
+                    <ChefHat size={16} />
+                    <span>Kitchen Items ({order.items?.length || 0})</span>
+                </div>
+                <ul className="items-list">
+                    {order.items?.map((item, idx) => (
+                        <li key={idx} className="item-row">
+                            <span className="item-qty">{item.quantity}×</span>
                             <span className="item-name">{item.name}</span>
-                            <span className="item-price">{formatCurrency(item.price * item.quantity)}</span>
                         </li>
                     ))}
                 </ul>
-                <div className="order-total">
-                    <span>Total</span>
-                    <span>{formatCurrency(total)}</span>
+            </div>
+
+            {nextStatus && (
+                <button
+                    className={`action-btn status-${nextStatus}`}
+                    onClick={() => onStatusChange(order.id, nextStatus)}
+                >
+                    {currentStatus === 'pending' && <ArrowRight size={18} />}
+                    {currentStatus === 'preparing' && <Check size={18} />}
+                    {currentStatus === 'ready' && <Check size={18} />}
+                    {actionLabel}
+                </button>
+            )}
+
+            {currentStatus === 'served' && (
+                <div className="served-badge">
+                    <Check size={18} />
+                    Order Completed
                 </div>
-            </div>
-
-            <div className="order-actions">
-                {status === 'pending' && (
-                    <button
-                        className="btn btn-lg btn-warning action-btn"
-                        onClick={() => onStatusChange(orderId, 'preparing')}
-                    >
-                        <Play size={24} />
-                        <span>Start Preparing</span>
-                    </button>
-                )}
-
-                {status === 'preparing' && (
-                    <button
-                        className="btn btn-lg btn-success action-btn"
-                        onClick={() => onStatusChange(orderId, 'ready')}
-                    >
-                        <Check size={24} />
-                        <span>Mark Ready</span>
-                    </button>
-                )}
-
-                {status === 'ready' && (
-                    <div className="ready-banner">
-                        <ChefHat size={28} />
-                        <span>Order is ready for pickup!</span>
-                    </div>
-                )}
-            </div>
+            )}
         </div>
     );
 }

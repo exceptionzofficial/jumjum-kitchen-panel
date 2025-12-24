@@ -5,21 +5,25 @@ import './OrderQueue.css';
 function OrderQueue({ orders, onStatusChange }) {
     const [activeTab, setActiveTab] = useState('pending');
 
-    const filteredOrders = orders.filter(order => {
-        if (activeTab === 'all') return true;
-        return order.status === activeTab;
-    });
-
-    const pendingCount = orders.filter(o => o.status === 'pending').length;
-    const preparingCount = orders.filter(o => o.status === 'preparing').length;
-    const readyCount = orders.filter(o => o.status === 'ready').length;
-
     const tabs = [
-        { id: 'pending', label: 'New Orders', count: pendingCount, icon: '🔔' },
-        { id: 'preparing', label: 'Preparing', count: preparingCount, icon: '👨‍🍳' },
-        { id: 'ready', label: 'Ready', count: readyCount, icon: '✅' },
-        { id: 'all', label: 'All Orders', count: orders.length, icon: '📋' },
+        { id: 'pending', label: 'Pending', color: '#ef4444' },
+        { id: 'preparing', label: 'Preparing', color: '#eab308' },
+        { id: 'ready', label: 'Ready', color: '#22c55e' },
+        { id: 'served', label: 'Served', color: '#6b7280' },
     ];
+
+    // Filter orders - treat 'completed' billing status as 'pending' for kitchen
+    const filteredOrders = orders.filter(order => {
+        const kitchenStatus = order.status === 'completed' ? 'pending' : order.status;
+        return kitchenStatus === activeTab;
+    }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    const getCount = (tabId) => {
+        return orders.filter(order => {
+            const status = order.status === 'completed' ? 'pending' : order.status;
+            return status === tabId;
+        }).length;
+    };
 
     return (
         <div className="order-queue">
@@ -27,39 +31,38 @@ function OrderQueue({ orders, onStatusChange }) {
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
-                        className={`queue-tab ${activeTab === tab.id ? 'active' : ''} ${tab.id}`}
+                        className={`queue-tab ${activeTab === tab.id ? 'active' : ''}`}
+                        style={{ '--tab-color': tab.color }}
                         onClick={() => setActiveTab(tab.id)}
                     >
-                        <span className="tab-icon">{tab.icon}</span>
                         <span className="tab-label">{tab.label}</span>
-                        {tab.count > 0 && (
-                            <span className={`tab-count ${tab.id}`}>{tab.count}</span>
-                        )}
+                        <span className="tab-count">{getCount(tab.id)}</span>
                     </button>
                 ))}
             </div>
 
-            <div className="queue-grid">
+            <div className="queue-content">
                 {filteredOrders.length === 0 ? (
-                    <div className="queue-empty">
-                        <div className="empty-icon">
-                            {activeTab === 'pending' ? '🎉' : '📭'}
+                    <div className="no-orders">
+                        <div className="no-orders-icon">
+                            {activeTab === 'pending' && '📭'}
+                            {activeTab === 'preparing' && '⏳'}
+                            {activeTab === 'ready' && '✅'}
+                            {activeTab === 'served' && '🍽️'}
                         </div>
-                        <h3>
-                            {activeTab === 'pending'
-                                ? 'No pending orders!'
-                                : `No ${activeTab} orders`}
-                        </h3>
-                        <p>Orders will appear here when received from billing</p>
+                        <h3>No {activeTab} orders</h3>
+                        <p>Orders will appear here when they arrive</p>
                     </div>
                 ) : (
-                    filteredOrders.map(order => (
-                        <OrderCard
-                            key={order.orderId}
-                            order={order}
-                            onStatusChange={onStatusChange}
-                        />
-                    ))
+                    <div className="orders-grid">
+                        {filteredOrders.map(order => (
+                            <OrderCard
+                                key={order.id}
+                                order={order}
+                                onStatusChange={onStatusChange}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
         </div>
