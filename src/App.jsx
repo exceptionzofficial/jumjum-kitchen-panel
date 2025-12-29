@@ -3,6 +3,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Header from './components/Header';
 import OrderQueue from './components/OrderQueue';
+import OrderHistory from './components/OrderHistory';
 import { ordersApi } from './services/api';
 import './App.css';
 
@@ -10,6 +11,7 @@ function KitchenApp() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastOrderCount, setLastOrderCount] = useState(0);
+  const [activePage, setActivePage] = useState('orders');
 
   const loadOrders = useCallback(async () => {
     try {
@@ -90,6 +92,8 @@ function KitchenApp() {
   const preparingCount = orders.filter(o => o.status === 'preparing').length;
   const readyCount = orders.filter(o => o.status === 'ready').length;
 
+  // OrderHistory is now imported at top
+
   if (loading) {
     return (
       <div className="app loading-screen">
@@ -110,12 +114,18 @@ function KitchenApp() {
         preparingCount={preparingCount}
         readyCount={readyCount}
         onRefresh={loadOrders}
+        activePage={activePage}
+        onPageChange={setActivePage}
       />
       <main className="main-content">
-        <OrderQueue
-          orders={orders}
-          onStatusChange={handleStatusChange}
-        />
+        {activePage === 'orders' ? (
+          <OrderQueue
+            orders={orders}
+            onStatusChange={handleStatusChange}
+          />
+        ) : (
+          <OrderHistory />
+        )}
       </main>
     </div>
   );

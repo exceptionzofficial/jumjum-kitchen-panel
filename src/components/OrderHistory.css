@@ -1,0 +1,131 @@
+/* Order History - Orange Theme */
+.order-history {
+    padding: 24px;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Orders Grid */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+/* History Order Card */
+.history-order-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px;
+    transition: all 0.2s ease;
+}
+
+.history-order-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.history-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.history-order-id {
+    font-weight: 700;
+    font-family: monospace;
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.history-order-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.status-badge.completed,
+.status-badge.ready {
+    background: rgba(76, 175, 80, 0.12);
+    color: var(--success);
+}
+
+.history-order-customer {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+/* Order Items */
+.history-order-items {
+    margin-bottom: 14px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.history-item-name {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.history-item-qty {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Footer */
+.history-order-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.history-total {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 1rem;
+}

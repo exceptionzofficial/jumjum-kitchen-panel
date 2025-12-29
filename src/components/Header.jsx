@@ -3,7 +3,7 @@ import { RefreshCw, Sun, Moon, Bell, Clock, ChefHat } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import './Header.css';
 
-function Header({ pendingCount = 0, preparingCount = 0, readyCount = 0, onRefresh }) {
+function Header({ pendingCount = 0, preparingCount = 0, readyCount = 0, onRefresh, activePage = 'orders', onPageChange }) {
     const [time, setTime] = useState(new Date());
     const { theme, toggleTheme } = useTheme();
 
@@ -31,6 +31,21 @@ function Header({ pendingCount = 0, preparingCount = 0, readyCount = 0, onRefres
                     <h1>Kitchen Display</h1>
                     <span>Order Management</span>
                 </div>
+            </div>
+
+            <div className="header-nav">
+                <button
+                    className={`nav-tab ${activePage === 'orders' ? 'active' : ''}`}
+                    onClick={() => onPageChange?.('orders')}
+                >
+                    🍳 Live Orders
+                </button>
+                <button
+                    className={`nav-tab ${activePage === 'history' ? 'active' : ''}`}
+                    onClick={() => onPageChange?.('history')}
+                >
+                    📦 History
+                </button>
             </div>
 
             <div className="header-stats">
