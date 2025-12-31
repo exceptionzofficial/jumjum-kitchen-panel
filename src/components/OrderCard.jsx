@@ -1,4 +1,4 @@
-import { Clock, User, ChefHat, Check, ArrowRight } from 'lucide-react';
+import { Clock, User, ChefHat, Check, ArrowRight, Hash } from 'lucide-react';
 import './OrderCard.css';
 
 function OrderCard({ order, onStatusChange }) {
@@ -45,6 +45,7 @@ function OrderCard({ order, onStatusChange }) {
 
     const nextStatus = getNextStatus();
     const actionLabel = getActionLabel();
+    const tableNumber = order.customer?.tableNumber || order.tableNumber;
 
     return (
         <div className={`order-card status-${currentStatus}`}>
@@ -59,9 +60,17 @@ function OrderCard({ order, onStatusChange }) {
                 </div>
             </div>
 
-            <div className="order-customer">
-                <User size={16} />
-                <span>{order.customer?.name || 'Customer'}</span>
+            <div className="order-customer-info">
+                <div className="order-customer">
+                    <User size={16} />
+                    <span>{order.customer?.name || 'Customer'}</span>
+                </div>
+                {tableNumber && (
+                    <div className="order-table">
+                        <Hash size={16} />
+                        <span className="table-badge">Table {tableNumber}</span>
+                    </div>
+                )}
             </div>
 
             <div className="order-items">

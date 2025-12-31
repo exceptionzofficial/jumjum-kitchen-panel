@@ -28,7 +28,7 @@ function Header({ pendingCount = 0, preparingCount = 0, readyCount = 0, onRefres
                     <ChefHat size={24} />
                 </div>
                 <div className="brand-text">
-                    <h1>Kitchen Display</h1>
+                    <h1>SRI KALKI Kitchen</h1>
                     <span>Order Management</span>
                 </div>
             </div>
@@ -45,6 +45,12 @@ function Header({ pendingCount = 0, preparingCount = 0, readyCount = 0, onRefres
                     onClick={() => onPageChange?.('history')}
                 >
                     📦 History
+                </button>
+                <button
+                    className={`nav-tab ${activePage === 'inventory' ? 'active' : ''}`}
+                    onClick={() => onPageChange?.('inventory')}
+                >
+                    📦 Inventory
                 </button>
             </div>
 

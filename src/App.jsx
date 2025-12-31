@@ -4,6 +4,7 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Header from './components/Header';
 import OrderQueue from './components/OrderQueue';
 import OrderHistory from './components/OrderHistory';
+import KitchenInventory from './components/KitchenInventory';
 import { ordersApi } from './services/api';
 import './App.css';
 
@@ -38,16 +39,36 @@ function KitchenApp() {
       }
       setLastOrderCount(pendingOrders.length);
 
+      // Debug log
+      console.log('All orders received:', allOrders.length);
+      if (allOrders.length > 0) {
+        console.log('Latest order sample:', allOrders[0]);
+      }
+
       // Map orders to kitchen format
-      const kitchenOrders = allOrders.map(order => ({
-        id: order.billid || order.billId,
-        orderId: order.billid || order.billId,
-        customer: order.customer,
-        items: order.kitchenItems || [],
-        status: order.kitchenStatus || order.status || 'pending',
-        createdAt: order.createdAt,
-        total: order.total,
-      }));
+      const kitchenOrders = allOrders.map(order => {
+        // Get kitchen items - first try kitchenItems array, then filter items
+        let kitchenItems = order.kitchenItems || [];
+        if (kitchenItems.length === 0 && order.items) {
+          kitchenItems = order.items.filter(item =>
+            item.isKitchen === true ||
+            (item.itemId && item.itemId.startsWith('KIT-'))
+          );
+        }
+
+        return {
+          id: order.billid || order.billId,
+          orderId: order.billid || order.billId,
+          customer: order.customer,
+          tableNumber: order.customer?.tableNumber,
+          items: kitchenItems,
+          status: order.kitchenStatus || order.status || 'pending',
+          createdAt: order.createdAt,
+          total: order.total,
+        };
+      }).filter(order => order.items.length > 0);
+
+      console.log('Kitchen orders count:', kitchenOrders.length);
 
       setOrders(kitchenOrders);
     } catch (error) {
@@ -92,7 +113,18 @@ function KitchenApp() {
   const preparingCount = orders.filter(o => o.status === 'preparing').length;
   const readyCount = orders.filter(o => o.status === 'ready').length;
 
-  // OrderHistory is now imported at top
+  const renderPage = () => {
+    switch (activePage) {
+      case 'orders':
+        return <OrderQueue orders={orders} onStatusChange={handleStatusChange} />;
+      case 'history':
+        return <OrderHistory />;
+      case 'inventory':
+        return <KitchenInventory />;
+      default:
+        return <OrderQueue orders={orders} onStatusChange={handleStatusChange} />;
+    }
+  };
 
   if (loading) {
     return (
@@ -118,14 +150,7 @@ function KitchenApp() {
         onPageChange={setActivePage}
       />
       <main className="main-content">
-        {activePage === 'orders' ? (
-          <OrderQueue
-            orders={orders}
-            onStatusChange={handleStatusChange}
-          />
-        ) : (
-          <OrderHistory />
-        )}
+        {renderPage()}
       </main>
     </div>
   );

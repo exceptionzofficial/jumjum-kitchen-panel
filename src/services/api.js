@@ -1,6 +1,6 @@
-// API Service for JumJum Kitchen Dashboard
-// const API_BASE_URL = 'http://localhost:5000/api';
-const API_BASE_URL = 'https://jumjum-backend.vercel.app/api';
+// API Service for SRI KALKI Kitchen Dashboard
+const API_BASE_URL = 'http://localhost:5000/api';
+// const API_BASE_URL = 'https://jumjum-backend.vercel.app/api';
 
 // Orders API
 export const ordersApi = {
@@ -12,15 +12,19 @@ export const ordersApi = {
         return data.data;
     },
 
-    // Get kitchen orders only (orders with kitchen items)
+    // Get kitchen orders only (orders with kitchen items that are not fully served)
     getKitchenOrders: async () => {
         const response = await fetch(`${API_BASE_URL}/billing`);
         const data = await response.json();
+        console.log('Raw API response:', data);
         if (!data.success) throw new Error(data.error);
-        // Filter orders that have kitchen items
-        return data.data.filter(order =>
-            order.kitchenItems && order.kitchenItems.length > 0
-        );
+
+        // TEMPORARILY: Return ALL orders to debug
+        // Filter out completed orders only
+        return data.data.filter(order => {
+            const status = order.status || 'pending';
+            return status !== 'completed';
+        });
     },
 
     // Update order status

@@ -145,6 +145,36 @@
     color: var(--text-muted);
 }
 
+/* Table Badge */
+.order-customer-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--bg-hover);
+    border-radius: 10px;
+}
+
+.order-table {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.order-table svg {
+    color: var(--primary);
+}
+
+.table-badge {
+    padding: 6px 12px;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 /* Order Items */
 .order-items {
     margin-bottom: 16px;
